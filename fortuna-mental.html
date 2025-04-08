@@ -35,11 +35,17 @@
       right: -10px;
       width: 0;
       height: 0;
-      border-top: 30px solid transparent;
-      border-bottom: 30px solid transparent;
-      border-left: 45px solid yellow;
-      transform: translateY(-50%) rotate(180deg);
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-left: 30px solid yellow;
+      transform: translateY(-50%) rotate(180deg); /* Changed from 180deg to 0deg */
       z-index: 10;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 36px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -49,6 +55,7 @@
     <div id="arrow"></div>
     <canvas id="wheel"></canvas>
   </div>
+  <div id="result"></div> <!-- This will display the result -->
 
   <script>
     const canvas = document.getElementById("wheel");
@@ -108,7 +115,7 @@
       const stopAngle = (1.5 * Math.PI) - (randomIndex * anglePerSlice) - (anglePerSlice / 2);
       const rotations = 5;
       const targetRotation = rotations * 2 * Math.PI + stopAngle;
-      const duration = 4000;
+      const duration = 3000;
       const start = performance.now();
 
       function animate(now) {
@@ -121,6 +128,25 @@
           requestAnimationFrame(animate);
         } else {
           spinning = false;
+
+          // Normalize final rotation between 0 and 2π
+          let normalizedRotation = currentRotation % (2 * Math.PI);
+          if (normalizedRotation < 0) normalizedRotation += 2 * Math.PI;
+
+          // Arrow points at 0 degrees, calculate relative angle
+          let arrowAngle = 0; // Now pointing at 0 degrees
+          let relativeAngle = (arrowAngle - normalizedRotation) % (2 * Math.PI);
+          if (relativeAngle < 0) relativeAngle += 2 * Math.PI;
+
+          // Determine index of the slice the arrow is pointing to
+          const anglePerSlice = 2 * Math.PI / slices.length;
+          const index = Math.floor(relativeAngle / anglePerSlice);
+
+          // Get the actual slice
+          const selectedSlice = slices[index];
+          const resultDisplay = document.getElementById("result");
+          resultDisplay.textContent = `${selectedSlice.color.toUpperCase()} - ${selectedSlice.value}`;
+          resultDisplay.style.color = selectedSlice.color;
         }
       }
 
